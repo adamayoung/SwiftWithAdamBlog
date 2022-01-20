@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="og:site_name" content="Swift with Adam"/><link rel="canonical" href="https://swiftwithadam.com/swift/map-filter-reduce"/><meta name="twitter:url" content="https://swiftwithadam.com/swift/map-filter-reduce"/><meta name="og:url" content="https://swiftwithadam.com/swift/map-filter-reduce"/><title>Map, Filter and Reduce | Swift with Adam</title><meta name="twitter:title" content="Map, Filter and Reduce | Swift with Adam"/><meta name="og:title" content="Map, Filter and Reduce | Swift with Adam"/><meta name="description" content="Map, filter and reduce allow you to manipulate sequences. You iterate of a list of items and perform an action on each of those items."/><meta name="twitter:description" content="Map, filter and reduce allow you to manipulate sequences. You iterate of a list of items and perform an action on each of those items."/><meta name="og:description" content="Map, filter and reduce allow you to manipulate sequences. You iterate of a list of items and perform an action on each of those items."/><meta name="twitter:card" content="summary"/><link rel="stylesheet" href="/styles.css" type="text/css"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><link rel="shortcut icon" href="/images/swift_logo.svg" type="image/svg+xml"/><link rel="alternate" href="/feed.rss" type="application/rss+xml" title="Subscribe to Swift with Adam"/><meta name="twitter:image" content="https://swiftwithadam.com/images/swift_logo.svg"/><meta name="og:image" content="https://swiftwithadam.com/images/swift_logo.svg"/></head><body class="item-page"><header><img src="/images/swift_logo.svg" class="logo"/><a href="/" class="site-name">Swift with Adam</a><nav><ul><li><a href="/swift" class="selected">Swift</a></li><li><a href="/tooling">Tooling</a></li></ul></nav></header><main><article><p class="item-eyebrow">Swift</p><p class="item-date">19 Jan 2022</p><h1>Map, Filter and Reduce</h1><div class="content"><p>Map, filter and reduce are handy tools for allowing you to manipulate <a href="https://developer.apple.com/documentation/swift/sequence">sequences</a> in Swift. They are available in most other programming languages too. At first they might seem a little strange, but once you get the hang of them it allows you to write concise and elegant code to get a task done.</p><h2>Map</h2><p>Map lets you iterate over a sequence (e.g. an <code>Array</code>) of items and 'transform' each item into something else, returning an array of those new items.</p><h3>Arrays</h3><p>Take this example - we have a list of <code>Int</code>s and we want to double each number in that array and get back a new array containing those new numbers. If you've never used map before you might attempt to do this by,</p><pre><code><span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]
+<span class="keyword">var</span> numbersDoubled = [<span class="type">Int</span>]()
+
+<span class="keyword">for</span> number <span class="keyword">in</span> numbers {
+    <span class="keyword">let</span> doubled = number * <span class="number">2</span>
+    numbersDoubled.<span class="call">append</span>(doubled)
+}
+
+<span class="comment">// [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]</span>
+</code></pre><p>Looks fine right?</p><p>Map allows you to do this in a much neater way. For example,</p><pre><code><span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]
+<span class="keyword">let</span> numbersDoubled = numbers.<span class="call">map</span> { (number: <span class="type">Int</span>) -&gt; <span class="type">Int</span> <span class="keyword">in
+    return</span> number * <span class="number">2</span>
+}
+
+<span class="comment">// [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]</span>
+</code></pre><p>which could be simplified to,</p><pre><code><span class="keyword">let</span> numbersDoubled = numbers.<span class="call">map</span> { number <span class="keyword">in</span>
+    number * <span class="number">2</span>
+}
+</code></pre><p>and simplified even further to,</p><pre><code><span class="keyword">let</span> numbersDoubled = numbers.<span class="call">map</span> { $0 * <span class="number">2</span> }
+</code></pre><p>Map is also useful when used with a list of <code>struct</code>s or <code>class</code>es. For example, suppose we have a list of people, and we want to get a list of just their names.</p><pre><code><span class="keyword">struct</span> Person {
+    <span class="keyword">let</span> name: <span class="type">String</span>
+}
+
+<span class="keyword">let</span> people = [
+    <span class="type">Person</span>(name: <span class="string">"Adam"</span>),
+    <span class="type">Person</span>(name: <span class="string">"Dave"</span>),
+    <span class="type">Person</span>(name: <span class="string">"Rob"</span>),
+    <span class="type">Person</span>(name: <span class="string">"Matthew"</span>)
+]
+
+<span class="keyword">let</span> names = people.<span class="call">map</span> { $0.<span class="property">name</span> }
+
+<span class="comment">// ["Adam", "Dave", "Rob", "Matthew"]</span>
+</code></pre><p>We could simplify the map by using a <a href="https://developer.apple.com/documentation/swift/keypath">KeyPath</a>,</p><pre><code><span class="keyword">let</span> names = people.<span class="call">map</span>(\.<span class="property">name</span>)
+</code></pre><h3>Dictionaries</h3><p>Map can be used with <code>Dictionary</code>s too.</p><pre><code><span class="keyword">let</span> countryCapitals = [
+    <span class="string">"England"</span>: <span class="string">"London"</span>,
+    <span class="string">"France"</span>: <span class="string">"Paris"</span>,
+    <span class="string">"Germany"</span>: <span class="string">"Berlin"</span>,
+    <span class="string">"Italy"</span>: <span class="string">"Rome"</span>
+]
+
+<span class="keyword">let</span> countries = countryCapitals.<span class="call">map</span> { key, value <span class="keyword">in
+    return</span> key
+}
+
+<span class="comment">// ["England", "France", "Germany", "Italy"]</span>
+
+<span class="keyword">let</span> capitalCities = countryCapitals.<span class="call">map</span> { key, value <span class="keyword">in
+    return</span> value
+}
+
+<span class="comment">// ["London", "Paris", "Berlin", "Rome"]</span>
+</code></pre><p>which could be simplified to,</p><pre><code><span class="keyword">let</span> countries = countryCapitals.<span class="call">map</span> { $0 }
+
+<span class="keyword">let</span> capitalCities = countryCapitals.<span class="call">map</span> { $1 }
+</code></pre><p>and even further simplified using <code>KeyPath</code>s,</p><pre><code><span class="keyword">let</span> countries = countryCapitals.<span class="call">map</span>(\.<span class="property">key</span>)
+
+<span class="keyword">let</span> capitalCities = countryCapitals.<span class="call">map</span>(\.<span class="property">value</span>)
+</code></pre><h2>Filter</h2><p>Filter, as the name suggests, lets you iterate over a sequence of items, see if the match a predicate, returning an array of those items with match that predicate.</p><p>Suppose we have an array of <code>Int</code>s, and we want to filter out all the even numbers in that array,</p><pre><code><span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]
+<span class="keyword">let</span> evenNumbers = numbers.<span class="call">filter</span> { (number: <span class="type">Int</span>) -&gt; <span class="type">Bool</span> <span class="keyword">in
+    return</span> number % <span class="number">2</span> == <span class="number">0</span>
+}
+
+<span class="comment">// [2, 4, 6, 8, 10]</span>
+</code></pre><p>which could be simplified to,</p><pre><code><span class="keyword">let</span> evenNumbers = numbers.<span class="call">filter</span> { $0 % <span class="number">2</span> == <span class="number">0</span> }
+</code></pre><p>Another example, let's say we have a list of people, and want to filter out people who's name begins with the letter A,</p><pre><code><span class="keyword">struct</span> Person {
+    <span class="keyword">let</span> name: <span class="type">String</span>
+}
+
+<span class="keyword">let</span> people = [
+    <span class="type">Person</span>(name: <span class="string">"Adam"</span>),
+    <span class="type">Person</span>(name: <span class="string">"Dave"</span>),
+    <span class="type">Person</span>(name: <span class="string">"Rob"</span>),
+    <span class="type">Person</span>(name: <span class="string">"Adrian"</span>),
+    <span class="type">Person</span>(name: <span class="string">"Matthew"</span>),
+    <span class="type">Person</span>(name: <span class="string">"Albert"</span>)
+]
+
+<span class="keyword">let</span> aPeople = people.<span class="call">filter</span> {
+    $0.<span class="property">name</span>.<span class="call">lowercased</span>().<span class="call">starts</span>(with: <span class="string">"a"</span>)
+}
+
+<span class="comment">// ["Adam", "Adrian", "Albert"]</span>
+</code></pre><h2>Using Map and Filter</h2><p>Because map and filter return a sequence of items, you can chain map and filter together to do more complex things. For example,</p><pre><code><span class="keyword">struct</span> Person {
+    <span class="keyword">let</span> name: <span class="type">String</span>
+}
+
+<span class="keyword">let</span> names = [<span class="string">"Adam"</span>, <span class="string">"Dave"</span>, <span class="string">"Rob"</span>, <span class="string">"Adrian"</span>, <span class="string">"Matthew"</span>, <span class="string">"Albert"</span>, <span class="string">"Richard"</span>]
+
+<span class="keyword">let</span> rPeople = names
+    .<span class="call">map</span> { name <span class="keyword">in</span>
+        <span class="type">Person</span>(name: name)
+    }
+    .<span class="call">filter</span> { person <span class="keyword">in</span>
+        person.<span class="property">name</span>.<span class="call">lowercased</span>().<span class="call">starts</span>(with: <span class="string">"r"</span>)
+    }
+
+<span class="comment">// ["Rob", "Richard"]</span>
+</code></pre><p>which could be simplified to,</p><pre><code><span class="keyword">let</span> rPeople = names
+    .<span class="call">map</span>(<span class="type">Person</span>.<span class="keyword">init</span>)
+    .<span class="call">filter</span> { $0.<span class="property">name</span>.<span class="call">lowercased</span>().<span class="call">starts</span>(with: <span class="string">"r"</span>) }
+</code></pre><h2>Reduce</h2><p>Reduce is probably the least commonly used of the Map, Filter and Reduce combo. Reduce allows you to iterate over a sequence of items, and combine all those items into a single value.</p><p>Here's an example. Suppose we have a list of <code>Int</code>s, and we want to find the sum of those <code>Int</code>s,</p><pre><code><span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]
+<span class="keyword">let</span> summedNumbers = numbers.<span class="call">reduce</span>(<span class="number">0</span>) { total, number <span class="keyword">in
+    return</span> total + number
+}
+
+<span class="comment">// 55</span>
+</code></pre><p>Reduce takes two parameters. The first is the initial result of what you're going to get back after reduce as iterated over your list. The second is a closure, which takes two parameters and returns the new value. The first is the next partial result (the result of the previous items having the closure called on them), and the second is the next value in the sequence we're iterating over.</p><p>The above can be simplified to,</p><pre><code><span class="keyword">let</span> summedNumbers = numbers.<span class="call">reduce</span>(<span class="number">0</span>) { $0 + $1 }
+</code></pre><p>and even further to,</p><pre><code><span class="keyword">let</span> summedNumbers = numbers.<span class="call">reduce</span>(<span class="number">0</span>, +)
+</code></pre><p>Another example, let's concatenate a list of strings into one string,</p><pre><code><span class="keyword">let</span> letters = [<span class="string">"A"</span>, <span class="string">"B"</span>, <span class="string">"C"</span>, <span class="string">"D"</span>, <span class="string">"E"</span>]
+<span class="keyword">let</span> text = letters.<span class="call">reduce</span>(<span class="string">""</span>, +)
+
+<span class="comment">// "ABCDE"</span>
+</code></pre></div></article></main><footer><p>Follow me on <a href="https://twitter.com/adamayoung">Twitter</a> or <a href="https://github.com/adamayoung">GitHub</a>.</p><p>Adam Young © 2022. All rights reserved.</p></footer></body></html>

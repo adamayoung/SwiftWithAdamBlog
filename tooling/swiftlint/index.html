@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="og:site_name" content="Swift with Adam"/><link rel="canonical" href="https://swiftwithadam.com/tooling/swiftlint"/><meta name="twitter:url" content="https://swiftwithadam.com/tooling/swiftlint"/><meta name="og:url" content="https://swiftwithadam.com/tooling/swiftlint"/><title>SwiftLint | Swift with Adam</title><meta name="twitter:title" content="SwiftLint | Swift with Adam"/><meta name="og:title" content="SwiftLint | Swift with Adam"/><meta name="description" content="Linting is the automated checking of your source code to flag programming errors, bugs, stylistic errors, and suspicious constructs. SwiftLint is a linter specifically for Swift code. But how do you use it?"/><meta name="twitter:description" content="Linting is the automated checking of your source code to flag programming errors, bugs, stylistic errors, and suspicious constructs. SwiftLint is a linter specifically for Swift code. But how do you use it?"/><meta name="og:description" content="Linting is the automated checking of your source code to flag programming errors, bugs, stylistic errors, and suspicious constructs. SwiftLint is a linter specifically for Swift code. But how do you use it?"/><meta name="twitter:card" content="summary"/><link rel="stylesheet" href="/styles.css" type="text/css"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><link rel="shortcut icon" href="/images/swift_logo.svg" type="image/svg+xml"/><link rel="alternate" href="/feed.rss" type="application/rss+xml" title="Subscribe to Swift with Adam"/><meta name="twitter:image" content="https://swiftwithadam.com/images/swift_logo.svg"/><meta name="og:image" content="https://swiftwithadam.com/images/swift_logo.svg"/></head><body class="item-page"><header><img src="/images/swift_logo.svg" class="logo"/><a href="/" class="site-name">Swift with Adam</a><nav><ul><li><a href="/swift">Swift</a></li><li><a href="/tooling" class="selected">Tooling</a></li></ul></nav></header><main><article><p class="item-eyebrow">Tooling</p><p class="item-date">19 Jan 2022</p><h1>SwiftLint</h1><div class="content"><h2>What is a Linter?</h2><p>Linting is the automated checking of your source code to flag programming errors, bugs, stylistic errors, and suspicious constructs. This is done by using a lint tool (otherwise known as linter). A lint tool is a basic static code analyzer.</p><h2>Why should you use a Linter in your development process?</h2><p>Linting is a way to reduce errors and improve the overall quality of your code. Using lint tools can help you accelerate development and reduce costs by finding errors earlier. The earlier a problem is found, the cheaper it is to fix.</p><p>It also helps when you share the codebase with a team. A linter can ensure everyone is following the same coding styles.</p><h2>How does it fit in with your development workflow?</h2><p>Typically, you'd add the linting step before building/compiling code. The process might look like:</p><ol><li>Write some code</li><li>Build it</li><li>Linter analyses your code</li><li>Warnings and errors are shown along with any compiler errors</li><li>Fix linting issues</li><li>Built it again</li></ol><h2>Introducing SwiftLint</h2><p><a href="https://github.com/realm/SwiftLint">SwiftLint</a> is a linter specifically for Swift code.</p><blockquote><p>A tool to enforce Swift style and conventions, loosely based on the now archived GitHub Swift Style Guide. SwiftLint enforces the style guide rules that are generally accepted by the Swift community. These rules are well described in popular style guides like Ray Wenderlich's Swift Style Guide.</p></blockquote><h2>Installing</h2><p>SwiftLint can be installed in a number of ways. The most common being by homebrew.</p><pre><code>brew install swiftlint
+</code></pre><p>Many CI/CD services like GitHub Actions, Bitrise or TravisCI have swiftlint installed by default on their macOS environments, saving you the time of installing it yourself.</p><h2>Running via the Terminal</h2><p>Once you have it installed, simply go to the root of your project or Swift Package in the terminal and run</p><pre><code>swiftlint
+</code></pre><p>The command will log all the places it's found a volation in your code, followed by summary of total violations.</p><h2>Running in an Xcode Project</h2><p>Xcode project targets can be configured to run custom build phases as part of the build process.</p><ol><li>Open your project in Xcode</li><li>Select the Project in the Project Navigator</li><li>Select the main target in your project</li><li>Click on the <strong>Build Phases</strong> tab</li><li>Add a new <strong>Run Script Phase</strong></li><li>Add the following script</li></ol><pre><code><span class="keyword">if</span> which swiftlint &gt;/dev/null; then
+    swiftlint
+<span class="keyword">else</span>
+    echo <span class="string">"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint"</span>
+fi
+</code></pre><p>Now whenever you build your target, SwiftLint will show you any violations as warnings or errors in your source code.</p><h2>Running in a Swift Package</h2><p>Unfortunately you cannot currently configure Swift Package Manager to run custom build phase scripts like you can with Xcode projects.</p><p>A proposal in Swift, called Package Manager Extensible Build Tools <a href="https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md">(SE-0303)</a> has been implemented, and is available in Swift 5.6, which is not yet released.</p><h2>Configure Linting Rules</h2><p>The standard set of linting rules can be in the <a href="https://realm.github.io/SwiftLint/rule-directory.html">Rule Directory Reference</a>. But you may want to tweak this rules to suit your own style. These custom rules can be added to a file called <code>.swiftlint.yml</code> in the directory where you will run swiftlint from.</p><p>Example <code>.swiftlint.yml</code> file:</p><pre><code>excluded:
+  - .<span class="dotAccess">build</span>
+
+identifier_name:
+  min_length:
+    error: <span class="number">4</span>
+  max_length: <span class="number">60</span>
+  excluded:
+    - id
+    - lhs
+    - rhs
+    - url
+</code></pre><p>See the SwiftLint <a href="https://github.com/realm/SwiftLint/blob/master/README.md">README.md</a> for more details on rules and how to create custom ones.</p><h2>Strict mode</h2><p>By default, any warnings that SwiftLint raises won't actually fail the linting - because they're just warnings and not errors. However, in some cases you may want to fail the linting when it does find warnings. One example might be when linting as part of your CI pipeline. To use SwiftLint in strict mode,</p><pre><code>swiftlint --strict
+</code></pre><h2>Running as part of your CI pipeline</h2><p>Part of any good Software Development Lifecycle is the use of CI (Continuous Integration) pipelines. It automates a lot of the checking and testing of our code which would otherwise have to be done manually. Linting your code is a common task as part of this.</p><h3>GitHub Actions</h3><p>I use <a href="https://github.com/features/actions">GitHub Actions</a> as my primary CI/CD tool. For public repositories it's free to use. The macOS environments available with GitHub Actions come with SwiftLint installed by default, saving you time installing it yourself.</p><p>Here's an example workflow which checks out the repository and lints all <code>.swift</code> source files:</p><pre><code>name: <span class="type">CI</span>
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: <span class="type">Lint</span>
+    runs-on: macos-latest
+    steps:
+      - name: <span class="type">Checkout</span>
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: <span class="number">0</span>
+
+      - name: swiftlint
+        run: swiftlint --strict
+</code></pre></div></article></main><footer><p>Follow me on <a href="https://twitter.com/adamayoung">Twitter</a> or <a href="https://github.com/adamayoung">GitHub</a>.</p><p>Adam Young © 2022. All rights reserved.</p></footer></body></html>
