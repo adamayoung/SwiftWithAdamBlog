@@ -19,8 +19,15 @@ let package = Package(
         .executableTarget(
             name: "SwiftWithAdamBlog",
             dependencies: [
+                "CodingPublishTheme",
                 .product(name: "Publish", package: "Publish"),
                 "SplashPublishPlugin"
+            ]
+        ),
+        .target(
+            name: "CodingPublishTheme",
+            dependencies: [
+                .product(name: "Publish", package: "Publish")
             ]
         )
     ]

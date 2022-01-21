@@ -222,7 +222,7 @@ and even further to,
 let summedNumbers = numbers.reduce(0, +)
 ```
 
-Another example, let's concatenate a list of strings into one string,
+Another example, let's concatenate an `Array` of strings into one string,
 
 ```swift
 let letters = ["A", "B", "C", "D", "E"]
