@@ -1,4 +1,112 @@
-<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Swift with Adam</title><description>Articles on everything you need to know about Swift</description><link>https://swiftwithadam.com</link><language>en</language><lastBuildDate>Fri, 21 Jan 2022 00:06:43 +0000</lastBuildDate><pubDate>Fri, 21 Jan 2022 00:06:43 +0000</pubDate><ttl>250</ttl><atom:link href="https://swiftwithadam.com/feed.rss" rel="self" type="application/rss+xml"/><item><guid isPermaLink="true">https://swiftwithadam.com/swift/map-filter-reduce</guid><title>Map, Filter and Reduce</title><description>Map, filter and reduce allow you to manipulate sequences. You iterate of a list of items and perform an action on each of those items.</description><link>https://swiftwithadam.com/swift/map-filter-reduce</link><pubDate>Wed, 19 Jan 2022 22:39:00 +0000</pubDate><content:encoded><![CDATA[<p>Map, filter and reduce are handy tools for allowing you to manipulate <a href="https://developer.apple.com/documentation/swift/sequence">sequences</a> in Swift. They are available in most other programming languages too. At first they might seem a little strange, but once you get the hang of them it allows you to write concise and elegant code to get a task done.</p><h2>Map</h2><p>Map lets you iterate over a sequence (e.g. an <code>Array</code>) of items and 'transform' each item into something else, returning an array of those new items.</p><h3>Arrays</h3><p>Take this example - we have a list of <code>Int</code>s and we want to double each number in that array and get back a new array containing those new numbers. If you've never used map before you might attempt to do this by,</p><pre><code><span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Swift with Adam</title><description>Articles on everything you need to know about Swift</description><link>https://swiftwithadam.com</link><language>en</language><lastBuildDate>Tue, 1 Feb 2022 21:40:37 +0000</lastBuildDate><pubDate>Tue, 1 Feb 2022 21:40:37 +0000</pubDate><ttl>250</ttl><atom:link href="https://swiftwithadam.com/feed.rss" rel="self" type="application/rss+xml"/><item><guid isPermaLink="true">https://swiftwithadam.com/architecture/dependency-injection</guid><title>Dependency Injection</title><description>Dependency Injection allows us to create more maintainable code which is easier to test.</description><link>https://swiftwithadam.com/architecture/dependency-injection</link><pubDate>Tue, 1 Feb 2022 19:41:00 +0000</pubDate><content:encoded><![CDATA[<p>In a nutshell, dependency injection means creating dependencies outside of the class that uses them and passing some dependencies to it, rather than the class creating them itself.</p><h2>Without Dependency Injection</h2><p>Take this example:</p><pre><code><span class="keyword">class</span> RandomNumberGenerator {
+
+    <span class="keyword">func</span> generate() -&gt; <span class="type">Int</span> {
+        <span class="type">Int</span>.<span class="call">random</span>(in: <span class="number">1</span>...<span class="number">10</span>)
+    }
+
+}
+
+<span class="keyword">class</span> SomeService {
+
+    <span class="keyword">let</span> generator = <span class="type">RandomNumberGenerator</span>()
+
+    <span class="keyword">func</span> nextNumber() -&gt; <span class="type">Int</span> {
+        generator.<span class="call">generate</span>()
+    }
+
+}
+
+<span class="keyword">let</span> service = <span class="type">SomeService</span>()
+<span class="keyword">let</span> number = service.<span class="call">nextNumber</span>()
+</code></pre><p>Although this does the job of getting the next number, it's not very maintainable or easy to test. What if you wanted to change the number generator to a different implementation? How would you even test <code>SomeService</code>?</p><h2>With Dependency Injection</h2><p>Dependency injection can help us make <code>SomeService</code> more maintainable and easier to test. Consider this example itself:</p><pre><code><span class="keyword">protocol</span> NumberGenerator {
+
+    <span class="keyword">func</span> generate() -&gt; <span class="type">Int</span>
+
+}
+
+<span class="keyword">final class</span> RandomNumberGenerator: <span class="type">NumberGenerator</span> {
+
+    <span class="keyword">func</span> generate() -&gt; <span class="type">Int</span> {
+        <span class="type">Int</span>.<span class="call">random</span>(in: <span class="number">1</span>...<span class="number">10</span>)
+    }
+
+}
+
+<span class="keyword">final class</span> SomeService {
+
+    <span class="keyword">private let</span> generator: <span class="type">NumberGenerator</span>
+
+    <span class="keyword">init</span>(generator: <span class="type">NumberGenerator</span>) {
+        <span class="keyword">self</span>.<span class="property">generator</span> = generator
+    }
+
+    <span class="keyword">func</span> nextNumber() -&gt; <span class="type">Int</span> {
+        generator.<span class="call">generate</span>()
+    }
+
+}
+
+<span class="keyword">let</span> generator = <span class="type">RandomNumberGenerator</span>()
+<span class="keyword">let</span> service = <span class="type">SomeService</span>(generator: generator)
+<span class="keyword">let</span> number = service.<span class="call">nextNumber</span>()
+</code></pre><p><code>SomeService</code> requires an implementation of <code>NumberGenerator</code>, but it doesn't care about what specific implementation it's using. If some point in the future we wanted to use a Fibonacci number generator all we'd have to do is create a <code>FibonacciNumberGenerator</code> class which implements <code>NumberGenerator</code> and pass that to <code>SomeService</code> when we initialise it. The <code>SomeService</code> class wouldn't need to change at all.</p><h2>Unit testing with Dependency Injection</h2><p>The other main advantage is testing. How would you test <code>SomeService</code>'s <code>nextNumber()</code> method is returning the correct number if you used our first implementation? It would be pretty hard!</p><p>If we use the second implementation we could simply make a mock number generator and get it to return the numbers of our choice when setting up the test.</p><pre><code><span class="keyword">final class</span> MockNumberGenerator: <span class="type">NumberGenerator</span> {
+
+    <span class="keyword">let</span> numbers: [<span class="type">Int</span>]
+    <span class="keyword">private var</span> index = <span class="number">0</span>
+
+    <span class="keyword">init</span>(numbers: [<span class="type">Int</span>]) {
+        <span class="keyword">self</span>.<span class="property">numbers</span> = numbers
+    }
+
+    <span class="keyword">func</span> generate() -&gt; <span class="type">Int</span> {
+        <span class="keyword">let</span> number = numbers[index % numbers.<span class="property">count</span>]
+        index += <span class="number">1</span>
+        <span class="keyword">return</span> number
+    }
+
+}
+
+<span class="keyword">final class</span> SomeServiceTests: <span class="type">XCTestCase</span> {
+
+    <span class="keyword">var</span> service: <span class="type">SomeService</span>!
+
+    <span class="keyword">override func</span> setUp() {
+        <span class="keyword">super</span>.<span class="call">setUp</span>()
+        <span class="keyword">let</span> generator = <span class="type">MockNumberGenerator</span>(numbers: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])
+        <span class="keyword">self</span>.<span class="property">service</span> = <span class="type">SomeService</span>(generator: generator)
+    }
+
+    <span class="keyword">override func</span> tearDown() {
+        <span class="keyword">self</span>.<span class="property">service</span> = <span class="keyword">nil
+        super</span>.<span class="call">tearDown</span>()
+    }
+
+    <span class="keyword">func</span> testNextNumberReturnsCorrectNumbers() {
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">1</span>)
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">2</span>)
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">3</span>)
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">4</span>)
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">5</span>)
+    }
+
+}
+</code></pre><p>Using a mock number generator lets us unit test <code>SomeService</code> in isolation. It doesn't matter what implementation of <code>NumberGenerator</code> we actually use with <code>SomeService</code> or if we change it at a later date, this test case and its tests will still be valid and won't need to change.</p><h2>How to use Dependency Injection in Real Life?</h2><h3>Easiest way - To it yourself</h3><p>The quickest and easiest way to start using dependency injection is to use Swift's default parameter value feature.</p><p>e.g.</p><pre><code><span class="keyword">final class</span> SomeService {
+
+    <span class="keyword">private let</span> generator: <span class="type">NumberGenerator</span>
+
+    <span class="keyword">init</span>(generator: <span class="type">NumberGenerator</span> = <span class="type">RandomNumberGenerator</span>()) {
+        <span class="keyword">self</span>.<span class="property">generator</span> = generator
+    }
+
+    <span class="keyword">func</span> nextNumber() -&gt; <span class="type">Int</span> {
+        generator.<span class="call">generate</span>()
+    }
+
+}
+</code></pre><p>This makes creating our <code>SomeService</code> with very little overhead:</p><pre><code><span class="keyword">let</span> service = <span class="type">SomeService</span>()
+</code></pre><p>and also allows us to inject a different <code>NumberGenerator</code> in if we want, or when we test it.</p><pre><code><span class="keyword">let</span> generator = <span class="type">SomeOtherNumberGenerator</span>()
+<span class="keyword">let</span> service = <span class="type">SomeService</span>(generator: generator)
+</code></pre><h3>Dependency Injection Frameworks</h3><p>There are several Swift Dependency Frameworks out there.</p><ul><li><a href="https://github.com/hmlongco/Resolver">Resolver</a></li><li><a href="https://github.com/square/Cleanse">Cleanse</a></li><li><a href="https://github.com/Swinject/Swinject">Swinject</a></li></ul><p>to name a few. They allow you to setup a Dependency Injection container and then resolve dependencies when you need them. They tend to deal with or warn you about cyclic dependencies too, something which the 'Do it yourself' way doesn't. On the other hand, your whole codebase is tied to the framework you use. If at some point you want to use a different framework it's not always easy to rip out the old one.</p>]]></content:encoded></item><item><guid isPermaLink="true">https://swiftwithadam.com/swift/map-filter-reduce</guid><title>Map, Filter and Reduce</title><description>Map, filter and reduce allow you to manipulate sequences. You iterate of a list of items and perform an action on each of those items.</description><link>https://swiftwithadam.com/swift/map-filter-reduce</link><pubDate>Wed, 19 Jan 2022 22:39:00 +0000</pubDate><content:encoded><![CDATA[<p>Map, filter and reduce are handy tools for allowing you to manipulate <a href="https://developer.apple.com/documentation/swift/sequence">sequences</a> in Swift. They are available in most other programming languages too. At first they might seem a little strange, but once you get the hang of them it allows you to write concise and elegant code to get a task done.</p><h2>Map</h2><p>Map lets you iterate over a sequence (e.g. an <code>Array</code>) of items and 'transform' each item into something else, returning an array of those new items.</p><h3>Arrays</h3><p>Take this example - we have a list of <code>Int</code>s and we want to double each number in that array and get back a new array containing those new numbers. If you've never used map before you might attempt to do this by,</p><pre><code><span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]
 <span class="keyword">var</span> numbersDoubled = [<span class="type">Int</span>]()
 
 <span class="keyword">for</span> number <span class="keyword">in</span> numbers {

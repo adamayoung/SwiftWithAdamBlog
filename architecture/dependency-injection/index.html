@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="en"><head><script async src="https://www.googletagmanager.com/gtag/js?id=G-VJ2DFPZ6Z9"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-VJ2DFPZ6Z9');</script><meta charset="UTF-8"/><meta name="og:site_name" content="Swift with Adam"/><link rel="canonical" href="https://swiftwithadam.com/architecture/dependency-injection"/><meta name="twitter:url" content="https://swiftwithadam.com/architecture/dependency-injection"/><meta name="og:url" content="https://swiftwithadam.com/architecture/dependency-injection"/><title>Dependency Injection | Swift with Adam</title><meta name="twitter:title" content="Dependency Injection | Swift with Adam"/><meta name="og:title" content="Dependency Injection | Swift with Adam"/><meta name="description" content="Dependency Injection allows us to create more maintainable code which is easier to test."/><meta name="twitter:description" content="Dependency Injection allows us to create more maintainable code which is easier to test."/><meta name="og:description" content="Dependency Injection allows us to create more maintainable code which is easier to test."/><meta name="twitter:card" content="summary"/><link rel="stylesheet" href="/styles.css" type="text/css"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><link rel="shortcut icon" href="/images/favicon.png" type="image/png"/><link rel="alternate" href="/feed.rss" type="application/rss+xml" title="Subscribe to Swift with Adam"/><meta name="twitter:image" content="https://swiftwithadam.com/images/swift_logo.svg"/><meta name="og:image" content="https://swiftwithadam.com/images/swift_logo.svg"/></head><body><header><img src="/images/swift_logo.svg" class="logo"/><a href="/" class="site-name">Swift with Adam</a><nav><ul><li><a href="/swift">Swift</a></li><li><a href="/architecture" class="selected">Architecture</a></li><li><a href="/tooling">Tooling</a></li></ul></nav></header><main><article><p class="item-eyebrow">Architecture</p><p class="item-date">1 Feb 2022</p><h1>Dependency Injection</h1><div class="content"><p>In a nutshell, dependency injection means creating dependencies outside of the class that uses them and passing some dependencies to it, rather than the class creating them itself.</p><h2>Without Dependency Injection</h2><p>Take this example:</p><pre><code><span class="keyword">class</span> RandomNumberGenerator {
+
+    <span class="keyword">func</span> generate() -&gt; <span class="type">Int</span> {
+        <span class="type">Int</span>.<span class="call">random</span>(in: <span class="number">1</span>...<span class="number">10</span>)
+    }
+
+}
+
+<span class="keyword">class</span> SomeService {
+
+    <span class="keyword">let</span> generator = <span class="type">RandomNumberGenerator</span>()
+
+    <span class="keyword">func</span> nextNumber() -&gt; <span class="type">Int</span> {
+        generator.<span class="call">generate</span>()
+    }
+
+}
+
+<span class="keyword">let</span> service = <span class="type">SomeService</span>()
+<span class="keyword">let</span> number = service.<span class="call">nextNumber</span>()
+</code></pre><p>Although this does the job of getting the next number, it's not very maintainable or easy to test. What if you wanted to change the number generator to a different implementation? How would you even test <code>SomeService</code>?</p><h2>With Dependency Injection</h2><p>Dependency injection can help us make <code>SomeService</code> more maintainable and easier to test. Consider this example itself:</p><pre><code><span class="keyword">protocol</span> NumberGenerator {
+
+    <span class="keyword">func</span> generate() -&gt; <span class="type">Int</span>
+
+}
+
+<span class="keyword">final class</span> RandomNumberGenerator: <span class="type">NumberGenerator</span> {
+
+    <span class="keyword">func</span> generate() -&gt; <span class="type">Int</span> {
+        <span class="type">Int</span>.<span class="call">random</span>(in: <span class="number">1</span>...<span class="number">10</span>)
+    }
+
+}
+
+<span class="keyword">final class</span> SomeService {
+
+    <span class="keyword">private let</span> generator: <span class="type">NumberGenerator</span>
+
+    <span class="keyword">init</span>(generator: <span class="type">NumberGenerator</span>) {
+        <span class="keyword">self</span>.<span class="property">generator</span> = generator
+    }
+
+    <span class="keyword">func</span> nextNumber() -&gt; <span class="type">Int</span> {
+        generator.<span class="call">generate</span>()
+    }
+
+}
+
+<span class="keyword">let</span> generator = <span class="type">RandomNumberGenerator</span>()
+<span class="keyword">let</span> service = <span class="type">SomeService</span>(generator: generator)
+<span class="keyword">let</span> number = service.<span class="call">nextNumber</span>()
+</code></pre><p><code>SomeService</code> requires an implementation of <code>NumberGenerator</code>, but it doesn't care about what specific implementation it's using. If some point in the future we wanted to use a Fibonacci number generator all we'd have to do is create a <code>FibonacciNumberGenerator</code> class which implements <code>NumberGenerator</code> and pass that to <code>SomeService</code> when we initialise it. The <code>SomeService</code> class wouldn't need to change at all.</p><h2>Unit testing with Dependency Injection</h2><p>The other main advantage is testing. How would you test <code>SomeService</code>'s <code>nextNumber()</code> method is returning the correct number if you used our first implementation? It would be pretty hard!</p><p>If we use the second implementation we could simply make a mock number generator and get it to return the numbers of our choice when setting up the test.</p><pre><code><span class="keyword">final class</span> MockNumberGenerator: <span class="type">NumberGenerator</span> {
+
+    <span class="keyword">let</span> numbers: [<span class="type">Int</span>]
+    <span class="keyword">private var</span> index = <span class="number">0</span>
+
+    <span class="keyword">init</span>(numbers: [<span class="type">Int</span>]) {
+        <span class="keyword">self</span>.<span class="property">numbers</span> = numbers
+    }
+
+    <span class="keyword">func</span> generate() -&gt; <span class="type">Int</span> {
+        <span class="keyword">let</span> number = numbers[index % numbers.<span class="property">count</span>]
+        index += <span class="number">1</span>
+        <span class="keyword">return</span> number
+    }
+
+}
+
+<span class="keyword">final class</span> SomeServiceTests: <span class="type">XCTestCase</span> {
+
+    <span class="keyword">var</span> service: <span class="type">SomeService</span>!
+
+    <span class="keyword">override func</span> setUp() {
+        <span class="keyword">super</span>.<span class="call">setUp</span>()
+        <span class="keyword">let</span> generator = <span class="type">MockNumberGenerator</span>(numbers: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])
+        <span class="keyword">self</span>.<span class="property">service</span> = <span class="type">SomeService</span>(generator: generator)
+    }
+
+    <span class="keyword">override func</span> tearDown() {
+        <span class="keyword">self</span>.<span class="property">service</span> = <span class="keyword">nil
+        super</span>.<span class="call">tearDown</span>()
+    }
+
+    <span class="keyword">func</span> testNextNumberReturnsCorrectNumbers() {
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">1</span>)
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">2</span>)
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">3</span>)
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">4</span>)
+        <span class="call">XCTAssertEqual</span>(service.<span class="call">nextNumber</span>(), <span class="number">5</span>)
+    }
+
+}
+</code></pre><p>Using a mock number generator lets us unit test <code>SomeService</code> in isolation. It doesn't matter what implementation of <code>NumberGenerator</code> we actually use with <code>SomeService</code> or if we change it at a later date, this test case and its tests will still be valid and won't need to change.</p><h2>How to use Dependency Injection in Real Life?</h2><h3>Easiest way - To it yourself</h3><p>The quickest and easiest way to start using dependency injection is to use Swift's default parameter value feature.</p><p>e.g.</p><pre><code><span class="keyword">final class</span> SomeService {
+
+    <span class="keyword">private let</span> generator: <span class="type">NumberGenerator</span>
+
+    <span class="keyword">init</span>(generator: <span class="type">NumberGenerator</span> = <span class="type">RandomNumberGenerator</span>()) {
+        <span class="keyword">self</span>.<span class="property">generator</span> = generator
+    }
+
+    <span class="keyword">func</span> nextNumber() -&gt; <span class="type">Int</span> {
+        generator.<span class="call">generate</span>()
+    }
+
+}
+</code></pre><p>This makes creating our <code>SomeService</code> with very little overhead:</p><pre><code><span class="keyword">let</span> service = <span class="type">SomeService</span>()
+</code></pre><p>and also allows us to inject a different <code>NumberGenerator</code> in if we want, or when we test it.</p><pre><code><span class="keyword">let</span> generator = <span class="type">SomeOtherNumberGenerator</span>()
+<span class="keyword">let</span> service = <span class="type">SomeService</span>(generator: generator)
+</code></pre><h3>Dependency Injection Frameworks</h3><p>There are several Swift Dependency Frameworks out there.</p><ul><li><a href="https://github.com/hmlongco/Resolver">Resolver</a></li><li><a href="https://github.com/square/Cleanse">Cleanse</a></li><li><a href="https://github.com/Swinject/Swinject">Swinject</a></li></ul><p>to name a few. They allow you to setup a Dependency Injection container and then resolve dependencies when you need them. They tend to deal with or warn you about cyclic dependencies too, something which the 'Do it yourself' way doesn't. On the other hand, your whole codebase is tied to the framework you use. If at some point you want to use a different framework it's not always easy to rip out the old one.</p></div></article></main><footer><p>Follow me on <a href="https://twitter.com/adamayoung">Twitter</a> or <a href="https://github.com/adamayoung">GitHub</a>.</p><p>Adam Young © 2022. All rights reserved.</p></footer></body></html>
