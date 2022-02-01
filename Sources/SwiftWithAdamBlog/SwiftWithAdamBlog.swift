@@ -7,6 +7,7 @@ struct SwiftWithAdamBlog: CodingWebsite {
 
     enum SectionID: String, WebsiteSectionID {
         case swift
+        case architecture
         case tooling
     }
 

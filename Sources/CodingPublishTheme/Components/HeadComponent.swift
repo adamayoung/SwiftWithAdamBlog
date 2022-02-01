@@ -1,6 +1,6 @@
 import Foundation
-import Publish
 import Plot
+import Publish
 
 public extension Node where Context == HTML.DocumentContext {
 

@@ -9,6 +9,6 @@ try SwiftWithAdamBlog().publish(using: [
     .addMarkdownFiles(),
     .copyResources(),
     .generateHTML(withTheme: .coding),
-    .generateRSSFeed(including: [.swift, .tooling]),
+    .generateRSSFeed(including: [.swift, .architecture, .tooling]),
     .generateSiteMap()
 ])

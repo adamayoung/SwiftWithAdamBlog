@@ -99,7 +99,7 @@ private struct CodingWebsiteHTMLFactory<Site: CodingWebsite>: HTMLFactory {
 private struct SiteHeader<Site: CodingWebsite>: Component {
 
     var context: PublishingContext<Site>
-    var selectedSelectionID: Site.SectionID? = nil
+    var selectedSelectionID: Site.SectionID?
 
     var body: Component {
         Header {

@@ -25,6 +25,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
+      - name: Lint
+        run: swiftlint --strict
+
       - name: Build
         run: swift build
 
@@ -53,7 +56,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download IPA artifact
+      - name: Download Site artifact
         uses: actions/download-artifact@v2
         with:
           name: Site
