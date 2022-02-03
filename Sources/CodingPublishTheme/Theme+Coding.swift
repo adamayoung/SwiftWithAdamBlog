@@ -63,10 +63,14 @@ private struct CodingWebsiteHTMLFactory<Site: CodingWebsite>: HTMLFactory {
                 SiteHeader(context: context, selectedSelectionID: item.sectionID)
                 Main {
                     Article {
-                        Paragraph(section.title).class("item-eyebrow")
-                        Paragraph(item.date, formatter: .dateOnly).class("item-date")
-                        H1(item.title)
-                        Div(item.content.body).class("content")
+                        Header {
+                            H1(item.title)
+                            Paragraph(section.title).class("item-section-title")
+                            Paragraph(item.date, formatter: .dateOnly).class("item-date")
+                        }
+                        Main {
+                            Div(item.content.body).class("content")
+                        }
                     }
                 }
                 SiteFooter(site: context.site)
@@ -141,10 +145,14 @@ private struct ItemList<Site: CodingWebsite>: Component {
             let section = context.sections[item.sectionID]
 
             return Article {
-                Paragraph(section.title).class("item-eyebrow")
-                Paragraph(item.date, formatter: .dateOnly).class("item-date")
-                H1(Link(item.title, url: item.path.absoluteString))
-                Paragraph(item.description)
+                Header {
+                    H1(Link(item.title, url: item.path.absoluteString))
+                    Paragraph(section.title).class("item-section-title")
+                    Paragraph(item.date, formatter: .dateOnly).class("item-date")
+                }
+                Main {
+                    Paragraph(item.description)
+                }
             }
         }
         .class("item-list")

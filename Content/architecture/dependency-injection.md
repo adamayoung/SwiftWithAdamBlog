@@ -4,11 +4,9 @@ date: 2022-02-01 19:41
 description: Dependency Injection allows us to create more maintainable code which is easier to test.
 ---
 
-In a nutshell, dependency injection means creating dependencies outside of the class that uses them and passing some dependencies to it, rather than the class creating them itself.
+In a nutshell, dependency injection means creating dependencies outside of the class that uses them and passing those dependencies to it, rather than the class creating them itself.
 
 ## Without Dependency Injection
-
-Take this example:
 
 ```swift
 class RandomNumberGenerator {
@@ -36,8 +34,6 @@ let number = service.nextNumber()
 Although this does the job of getting the next number, it's not very maintainable or easy to test. What if you wanted to change the number generator to a different implementation? How would you even test `SomeService`?
 
 ## With Dependency Injection
-
-Dependency injection can help us make `SomeService` more maintainable and easier to test. Consider this example itself:
 
 ```swift
 protocol NumberGenerator {
@@ -73,13 +69,13 @@ let service = SomeService(generator: generator)
 let number = service.nextNumber()
 ```
 
-`SomeService` requires an implementation of `NumberGenerator`, but it doesn't care about what specific implementation it's using. If some point in the future we wanted to use a Fibonacci number generator all we'd have to do is create a `FibonacciNumberGenerator` class which implements `NumberGenerator` and pass that to `SomeService` when we initialise it. The `SomeService` class wouldn't need to change at all.
+`SomeService` requires something that implements `NumberGenerator`, but it doesn't care about what specific implementation it's using. If some point in the future we wanted to use a Fibonacci number generator, all we'd have to do is create a `FibonacciNumberGenerator` class which implements `NumberGenerator` and pass that to `SomeService` when we initialise it. The `SomeService` class wouldn't need to change at all.
 
 ## Unit testing with Dependency Injection
 
-The other main advantage is testing. How would you test `SomeService`'s `nextNumber()` method is returning the correct number if you used our first implementation? It would be pretty hard!
+How would you test `SomeService`'s `nextNumber()` method is returning the correct number if you used our first example? It would be pretty hard!
 
-If we use the second implementation we could simply make a mock number generator and get it to return the numbers of our choice when setting up the test.
+If we use the second example we could make a mock number generator and get it to return the numbers of our choice when setting up the test.
 
 ```swift
 final class MockNumberGenerator: NumberGenerator {
@@ -151,13 +147,13 @@ final class SomeService {
 }
 ```
 
-This makes creating our `SomeService` with very little overhead:
+Then we create our `SomeService`:
 
 ```swift
 let service = SomeService()
 ```
 
-and also allows us to inject a different `NumberGenerator` in if we want, or when we test it.
+It also allows us to inject a different `NumberGenerator` if we want, or when we test it.
 
 ```swift
 let generator = SomeOtherNumberGenerator()
@@ -166,10 +162,12 @@ let service = SomeService(generator: generator)
 
 ### Dependency Injection Frameworks
 
-There are several Swift Dependency Frameworks out there.
+There are several Swift Dependency Frameworks out there. A few are,
 
 * [Resolver](https://github.com/hmlongco/Resolver)
 * [Cleanse](https://github.com/square/Cleanse)
 * [Swinject](https://github.com/Swinject/Swinject)
 
-to name a few. They allow you to setup a Dependency Injection container and then resolve dependencies when you need them. They tend to deal with or warn you about cyclic dependencies too, something which the 'Do it yourself' way doesn't. On the other hand, your whole codebase is tied to the framework you use. If at some point you want to use a different framework it's not always easy to rip out the old one.
+They allow you to setup a Dependency Injection container and then resolve dependencies when you need them. They tend to deal with or warn you about cyclic dependencies too, something which the 'Do it yourself' way doesn't.
+
+On the other hand, your whole codebase is tied to the framework you use. If at some point you want to use a different framework it's not always easy to rip out the old one.
