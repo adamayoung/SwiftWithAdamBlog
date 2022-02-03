@@ -83,39 +83,48 @@ body {
     body {
         --color-fill: #121212;
         --color-light-gray: #AAA;
-
         --color-text: #EDEDEf;
     }
 }
 
 /* Main Elements */
 
-body {
+html {
     font-family: "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 19px;
-    letter-spacing: 0.2280000001192093px;
-    line-height: 27.000900268554688px;
-    background-color: var(--color-fill);
-    color: var(--color-text);
-    font-weight:300
+    font-weight: 300;
+    letter-spacing: 0.23px;
+    line-height: 27px;
 }
 
+@media (max-width: 38em) {
+    html {
+        font-size: 16px;
+        letter-spacing: 0px;
+        line-height: 24px;
+    }
+}
+
+body {
+    background-color: var(--color-fill);
+    color: var(--color-text);
+}
 
 body pre, body code {
-    font-family: "SF Mono", Menlo, Consolas, Monaco, "Courier New", monospace, serif
+    font-family: "SF Mono", Menlo, Consolas, Monaco, "Courier New", monospace, serif;
 }
 
 a:link {
     color: var(--color-link);
-    text-decoration:none
+    text-decoration: none
 }
 
 a:visited {
-    color:var(--color-link)
+    color: var(--color-link)
 }
 
 a:active {
-    color:var(--color-link)
+    color: var(--color-link)
 }
 
 a:hover {
@@ -189,6 +198,12 @@ body > header, body > main, body > footer {
     padding: 0 40px 40px 40px;
 }
 
+@media (max-width: 38em) {
+    body > header, body > main, body > footer {
+        padding: 0 20px 20px 20px;
+    }
+}
+
 /* - Header */
 
 body > header {
@@ -230,24 +245,48 @@ nav li:last-child {
 
 /* - article */
 
-article > h1 {
+article header {
+    margin-bottom: 0.5em;
+}
+
+article header h1 {
+    margin-bottom: 0;
+}
+
+article header p {
+    margin-bottom: 0;
+}
+
+article header p {
+    font-size: 0.8em;
+    color: var(--color-light-gray);
+    font-weight: 500;
+}
+
+
+article header p.item-section-title {
+    text-transform: uppercase;
+    margin-block-end: -0.5em;
+}
+
+article header p.item-date {
+    margin-bottom: 1em;
+}
+
+article main > h1 {
     max-width: 80%;
 }
 
-article p {
-    text-align: justify;
-}
-
-article ul, article ol {
+article main ul, article main ol {
     margin-left: 2em;
     margin-bottom: 1em;
 }
 
-article img {
+article main img {
     max-width: 100%;
 }
 
-article blockquote {
+article main blockquote {
     margin: 0 3em;
 }
 
@@ -262,36 +301,6 @@ article blockquote {
 
 .item-list > li:last-child {
     margin-bottom: 0;
-}
-
-.item-list h1 {
-    margin-bottom: 15px;
-}
-
-.item-list p {
-    margin-bottom: 0;
-}
-
-.item-eyebrow {
-    text-transform: uppercase;
-}
-
-.item-eyebrow, .item-date {
-    font-size: 0.8em;
-    color: var(--color-light-gray);
-    font-weight: 500;
-}
-
-p.item-eyebrow {
-    margin-bottom: 0;
-}
-
-p.item-date {
-    margin-bottom: 1em;
-}
-
-.content {
-    margin-bottom: 40px;
 }
 
 .browse-all {
